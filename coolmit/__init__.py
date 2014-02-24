@@ -93,8 +93,11 @@ committer {name} <{email}> {timestamp} -0600
 
 def run_commandline():
     import sys
-    
-    prefix = sys.argv[1]
-    message = sys.argv[2]
-    print("Mining for commit hash with prefix {}".format(prefix))
-    coolmit(prefix, message)
+    try: # TODO: optparse
+        prefix = sys.argv[1]
+        message = sys.argv[2]
+    except IndexError:
+        print('syntax: coolmit prefix "commit message"')
+    else:
+        print("Mining for commit hash with prefix {}".format(prefix))
+        coolmit(prefix, message)
