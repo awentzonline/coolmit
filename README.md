@@ -11,7 +11,7 @@ Usage
 -----
 Stage your git commit, then run:
 
-coolmit desired_prefix "A commit message"
+git coolmit desired_prefix "A commit message"
 
 License
 -------

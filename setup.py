@@ -24,7 +24,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "coolmit = coolmit:run_commandline",
+            "git-coolmit = coolmit:run_commandline",
         ]
     }
 )
