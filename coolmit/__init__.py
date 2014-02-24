@@ -32,18 +32,30 @@ def coolmit(prefix, message, chunk_size=50000, show_hps=True, num_workers=5):
     if not (user_email or user_name):
         raise Exception("You need to git config user.name and email")
     tree = subprocess.check_output(["git", "write-tree"]).strip()
-    parent = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
+    try:
+        parent = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
+    except:
+        parent = ""
     timestamp = int(time.time())
-    body = """tree {tree}
+    if parent:
+        body = """tree {tree}
 parent {parent}
 author {name} <{email}> {timestamp} -0600
 committer {name} <{email}> {timestamp} -0600
 
 {message} {{}}""".format(
-        tree=tree, parent=parent, timestamp=timestamp, message=message,
-        name=user_name, email=user_email
-    )
-        
+            tree=tree, parent=parent, timestamp=timestamp, message=message,
+            name=user_name, email=user_email
+        )
+    else: # no parent commit
+        body = """tree {tree}
+author {name} <{email}> {timestamp} -0600
+committer {name} <{email}> {timestamp} -0600
+
+{message} {{}}""".format(
+            tree=tree, timestamp=timestamp, message=message,
+            name=user_name, email=user_email
+        )
     i0 = 0
     pool = Pool(num_workers)
     coolmit_msg, coolmit_hash = None, None
