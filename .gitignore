@@ -1,0 +1,13 @@
+*.py[cod]
+.DS_Store
+include
+.Python
+*.db
+.coverage
+*~
+*.swp
+dist
+.vagrant
+*.egg-info
+*.egg
+build/
