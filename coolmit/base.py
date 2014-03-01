@@ -73,28 +73,28 @@ committer {name} <{email}> {timestamp} -0600
         result = None
         self.pool = Pool(num_workers)
         for probe_length in range(1, max_probe_length + 1):
-            result = self._probe(prefix, message, probe_length, num_workers, chunk_size)
+            coolmit_msg = self.prepare_message(message)
+            template = self.prepare_git_object(coolmit_msg, probe_length)
+            result = self._probe(prefix, template, probe_length, num_workers, chunk_size)
             if result:
-                return result
+                salt, hash_ = result
+                return coolmit_msg, salt, hash_
 
     def _probe(self, prefix, message, probe_length, num_workers, chunk_size):
         work_chunk_size = num_workers * chunk_size
         num_combinations = len(self.charset) ** probe_length
         
-        coolmit_msg = self.prepare_message(message)
-        template = self.prepare_git_object(coolmit_msg, probe_length)
         start_offset = 0
         start_t = time.time()
         while start_offset < num_combinations:
             params = [
-                (prefix, template, self.charset, worker_id, num_workers, start_offset, probe_length, work_chunk_size) \
+                (prefix, message, self.charset, worker_id, num_workers, start_offset, probe_length, work_chunk_size) \
                 for worker_id in range(num_workers)
             ]
             results = self.pool.map(coolmit_probe_worker, params)
             for result in results:
-                if result:
-                    salt, hash_ = result
-                    return coolmit_msg, salt, hash_ 
+                if result:       
+                    return result 
             start_offset += work_chunk_size
             if start_offset % (work_chunk_size * 5) == 0:
                 dt = time.time() - start_t
