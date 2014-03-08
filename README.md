@@ -6,8 +6,7 @@ Don't just commit; coolmit. Make your commits cooler with coolmit today!
 
 Installation
 ------------
-python setup.py install
-
+`pip install coolmit` or `python setup.py install`
 
 Usage
 -----
