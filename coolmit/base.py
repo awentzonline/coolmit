@@ -40,8 +40,12 @@ class CoolmitMiner(object):
             raise Exception("You need to git config user.name and email")
         tree = subprocess.check_output(["git", "write-tree"]).strip()
         try:
-            parent = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
-        except:
+            refs = subprocess.check_output("git show-ref".split()).strip()
+            if refs:
+                parent = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
+            else:
+                parent = ""
+        except subprocess.CalledProcessError:
             parent = ""
         timestamp = int(time.time())
         if parent:
