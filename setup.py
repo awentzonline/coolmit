@@ -8,10 +8,10 @@ def read(fname):
 
 setup(
     name="coolmit",
-    version="0.0.2.dev.0",
+    version="0.0.2.dev.1",
     author="Adam Wentz",
     author_email="awentz@theonion.com",
-    description=("Don't just commit; coolmit.",),
+    description="Don't just commit; coolmit.",
     long_description=read("README.md"),
     license="MIT",
     keywords="git cool commit",
