@@ -26,5 +26,6 @@ setup(
         "console_scripts": [
             "git-coolmit = coolmit:run_commandline",
         ]
-    }
+    },
+    test_suite="tests"
 )
