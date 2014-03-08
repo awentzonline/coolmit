@@ -26,6 +26,10 @@ class BaseCoolmitTestCase(unittest.TestCase):
     def init_repo(self):
         return self.sp_call("git init", shell=True)
 
+    def setup_test_user(self, name="Steve Ballmer", email="bigpoppa@microsoft.com"):
+        self.sp_call("git config user.name \"{}\"".format(name), shell=True)
+        self.sp_call("git config user.email \"{}\"".format(email), shell=True)
+
     def touch_file(self, name):
         return touch(os.path.join(self.root_path, name))
 
@@ -46,6 +50,7 @@ class CoolmitMetaTestCase(BaseCoolmitTestCase):
 class CoolmitTestCase(BaseCoolmitTestCase):
     def test_coolmit_headless(self):
         self.init_repo()
+        self.setup_test_user()
         self.touch_file("AirWolf.plans")
         self.sp_call("git add .", shell=True)
         prefix = "beef"
@@ -57,6 +62,7 @@ class CoolmitTestCase(BaseCoolmitTestCase):
 
     def test_coolmit_has_head(self):
         self.init_repo()
+        self.setup_test_user()
         self.touch_file("StringfellowHawkeLakeCelloMusic.mp3")
         self.sp_call("git add .", shell=True)
         self.sp_call("git commit -m \"test\"", shell=True)
