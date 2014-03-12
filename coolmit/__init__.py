@@ -16,15 +16,16 @@ def coolmit(root_path, prefix, message, chunk_size=100000, num_workers=5):
     fname = os.path.join(root_path, ".coolmit")
     with open(fname, "wb") as outfile:
         outfile.write(coolmit_msg)
-    subprocess.call(
+    result_hash = subprocess.check_output(
         "git hash-object -t commit -w {}".format(fname),
         shell=True, cwd=root_path
-    )
+    ).strip()
     subprocess.call(
         "git reset --hard \"{}\"".format(coolmit_hash),
         shell=True, cwd=root_path
     )
     os.unlink(fname)
+    return result_hash
 
 
 def run_commandline():

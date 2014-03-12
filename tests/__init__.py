@@ -5,6 +5,7 @@ import subprocess
 import unittest
 
 import coolmit
+from coolmit.base import CoolmitMiner
 
 
 def touch(path):
@@ -22,6 +23,10 @@ class BaseCoolmitTestCase(unittest.TestCase):
     def sp_call(self, *args, **kwargs):
         kwargs["cwd"] = self.root_path
         return subprocess.call(*args, **kwargs)
+
+    def sp_check_output(self, *args, **kwargs):
+        kwargs["cwd"] = self.rool_path
+        return subprocess.check_output(*args, **kwargs)
 
     def init_repo(self):
         return self.sp_call("git init", shell=True)
@@ -48,17 +53,30 @@ class CoolmitMetaTestCase(BaseCoolmitTestCase):
 
 
 class CoolmitTestCase(BaseCoolmitTestCase):
+    message_alignment = 0
+    prefix = "beef"
+
+    def setUp(self):
+        CoolmitMiner.message_alignment = self.message_alignment
+        super(CoolmitTestCase, self).setUp()
+
+    def tearDown(self):
+        super(CoolmitTestCase, self).tearDown()
+        CoolmitMiner.message_alignment = self.message_alignment
+
     def test_coolmit_headless(self):
         self.init_repo()
         self.setup_test_user()
         self.touch_file("AirWolf.plans")
         self.sp_call("git add .", shell=True)
-        prefix = "beef"
-        message = "just a coolmit"
-        coolmit.coolmit(
-            self.root_path, prefix, message,
+        message = "just a parentless coolmit"
+        result_hash = coolmit.coolmit(
+            self.root_path, self.prefix, message,
             chunk_size=10000, num_workers=5
         )
+        if not result_hash.startswith(self.prefix):
+            print("*********{}*********".format(result_hash))
+        self.assertTrue(result_hash.startswith(self.prefix))
 
     def test_coolmit_has_head(self):
         self.init_repo()
@@ -66,9 +84,14 @@ class CoolmitTestCase(BaseCoolmitTestCase):
         self.touch_file("StringfellowHawkeLakeCelloMusic.mp3")
         self.sp_call("git add .", shell=True)
         self.sp_call("git commit -m \"test\"", shell=True)
-        prefix = "f00d"
-        message = "made code cooler"
-        coolmit.coolmit(
-            self.root_path, prefix, message,
+        message = "made this code cooler"
+        result_hash = coolmit.coolmit(
+            self.root_path, self.prefix, message,
             chunk_size=10000, num_workers=5
         )
+        self.assertTrue(result_hash.startswith(self.prefix))
+
+
+class CoolmitTestAlignment(CoolmitTestCase):
+    """Test padded messages"""
+    message_alignment = 4

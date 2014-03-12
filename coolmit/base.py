@@ -61,15 +61,9 @@ committer {name} <{email}> {timestamp} -0600
 
     def prepare_git_object(self, body, probe_length):
         if self.message_alignment:
-            protocol_len = len("commit \0")
             while True:
-                total_len = (
-                    protocol_len +
-                    len(str(len(body) + probe_length)) +
-                    len(body) +
-                    probe_length
-                )
-                if total_len % self.message_alignment:
+                msg = "commit {}\0{}".format(len(body) + probe_length, body)
+                if (len(msg) + probe_length) % self.message_alignment:
                     body += " "
                 else:
                     break
