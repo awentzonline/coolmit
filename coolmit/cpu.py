@@ -13,14 +13,16 @@ def coolmit_probe_worker(args):
     prefix, msg_template, charset, worker_id, num_workers, start_offset, probe_length, work_chunk_size = args
     hf = hashlib.sha1
     len_charset = len(charset)
+    msg_h = hf(msg_template)
     for i in xrange(start_offset + worker_id, start_offset + work_chunk_size, num_workers):
         salt = ''
         remaining = i
         for j in xrange(probe_length):
             salt += charset[remaining % len_charset]
             remaining = remaining // len_charset
-        m = msg_template + salt
-        h = hf(m).hexdigest()
+        h = msg_h.copy()
+        h.update(salt)
+        h = h.hexdigest()
         if h.startswith(prefix):
             return salt, h
 
