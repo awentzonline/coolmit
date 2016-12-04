@@ -44,7 +44,7 @@ parent {parent}
 author {name} <{email}> {timestamp} -0600
 committer {name} <{email}> {timestamp} -0600
 
-{message} """.format(
+{message}\n""".format(
                 tree=tree, parent=parent, timestamp=timestamp, message=message,
                 name=user_name, email=user_email
             )
@@ -53,7 +53,7 @@ committer {name} <{email}> {timestamp} -0600
 author {name} <{email}> {timestamp} -0600
 committer {name} <{email}> {timestamp} -0600
 
-{message} """.format(
+{message}\n""".format(
                 tree=tree, timestamp=timestamp, message=message,
                 name=user_name, email=user_email
             )
