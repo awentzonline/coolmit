@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="coolmit",
-    version="0.0.2.dev.1",
+    version="0.0.3",
     author="Adam Wentz",
     author_email="adam@adamwentz.com",
     description="Don't just commit; coolmit.",
