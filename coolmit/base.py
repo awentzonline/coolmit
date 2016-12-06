@@ -19,44 +19,22 @@ class CoolmitMiner(object):
         kwargs["cwd"] = self.root_path
         return subprocess.check_output(*args, **kwargs)
 
-    def prepare_message(self, message):
-        user_name = self.sp_check_output(
-            "git config user.name", shell=True
+    def get_HEAD_parts(self):
+        existing_commit = self.sp_check_output(
+            "git show --format=raw --no-patch", shell=True
         ).strip()
-        user_email = self.sp_check_output(
-            "git config user.email", shell=True
-        ).strip()
-        if not (user_email or user_name):
-            raise Exception("You need to git config user.name and email")
-        tree = self.sp_check_output(["git", "write-tree"]).strip()
-        try:
-            refs = self.sp_check_output("git show-ref".split()).strip()
-            if refs:
-                parent = self.sp_check_output(["git", "rev-parse", "HEAD"]).strip()
-            else:
-                parent = ""
-        except subprocess.CalledProcessError:
-            parent = ""
-        timestamp = int(time.time())
-        if parent:
-            header = """tree {tree}
-parent {parent}
-author {name} <{email}> {timestamp} -0600
-committer {name} <{email}> {timestamp} -0600
-gitfor """.format(
-                tree=tree, parent=parent, timestamp=timestamp,
-                name=user_name, email=user_email
-            )
-        else: # no parent commit
-            header = """tree {tree}
-author {name} <{email}> {timestamp} -0600
-committer {name} <{email}> {timestamp} -0600
-gitfor """.format(
-                tree=tree, timestamp=timestamp,
-                name=user_name, email=user_email
-            )
-        body = "\n\n{}".format(message) # newline after headers and blank line
-        return header, body
+        in_header = True
+        header_lines = []
+        body_lines = []
+        header, body = existing_commit.split('\n\n', 1)
+        header = header.split('\n')
+        if header[0].startswith('commit'):
+            header = header[1:]  # remove first header `commit`
+        if header[-1].startswith('gitfor'):  # remove old coolmit header
+            header = header[:-1]
+        header.append('gitfor ')
+        header = '\n'.join(header)
+        return header, '\n\n{}'.format(body.lstrip())
 
     def prepare_git_object(self, header, body, probe_length):
         len_full = len(header) + len(body) + probe_length
@@ -73,13 +51,14 @@ gitfor """.format(
     def pre_mine(self):
         pass
 
-    def mine(self, prefix, message, max_probe_length=10, num_workers=4, chunk_size=100000):
+    def mine(self, prefix, max_probe_length=10, num_workers=4, chunk_size=100000):
         """Find a git commit which has a hash containing a desired prefix."""
         result = None
         self.pre_mine()
         for probe_length in range(1, max_probe_length + 1):
-            coolmit_header, coolmit_body = self.prepare_message(message)
-            git_header, coolmit_header = self.prepare_git_object(coolmit_header, coolmit_body, probe_length)
+            coolmit_header, coolmit_body = self.get_HEAD_parts()
+            git_header, coolmit_header = self.prepare_git_object(
+                coolmit_header, coolmit_body, probe_length)
             result = self._probe(
                 prefix, git_header, coolmit_body, probe_length, chunk_size)
             if result:

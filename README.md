@@ -19,9 +19,10 @@ Installation
 
 Usage
 -----
-Stage your git commit, then run:
+To update the hash of the current HEAD:
+`git coolmit DESIRED_PREFIX`
 
-`git coolmit desired_prefix "A commit message"`
+E.g.: `git coolmit beef`
 
 License
 -------

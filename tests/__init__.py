@@ -64,31 +64,18 @@ class CoolmitTestCase(BaseCoolmitTestCase):
         super(CoolmitTestCase, self).tearDown()
         CoolmitMiner.message_alignment = self.message_alignment
 
-    def test_coolmit_headless(self):
+    def test_coolmit(self):
         self.init_repo()
         self.setup_test_user()
         self.touch_file("AirWolf.plans")
         self.sp_call("git add .", shell=True)
-        message = "just a parentless coolmit"
+        self.sp_call("git commit -m \"Testing\"", shell=True)
         result_hash = coolmit.coolmit(
-            self.root_path, self.prefix, message,
+            self.root_path, self.prefix,
             chunk_size=10000, num_workers=5
         )
         if not result_hash.startswith(self.prefix):
             print("*********{}*********".format(result_hash))
-        self.assertTrue(result_hash.startswith(self.prefix))
-
-    def test_coolmit_has_head(self):
-        self.init_repo()
-        self.setup_test_user()
-        self.touch_file("StringfellowHawkeLakeCelloMusic.mp3")
-        self.sp_call("git add .", shell=True)
-        self.sp_call("git commit -m \"test\"", shell=True)
-        message = "made this code cooler"
-        result_hash = coolmit.coolmit(
-            self.root_path, self.prefix, message,
-            chunk_size=10000, num_workers=5
-        )
         self.assertTrue(result_hash.startswith(self.prefix))
 
 
